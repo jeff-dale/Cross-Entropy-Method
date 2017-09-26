@@ -74,12 +74,15 @@ class CrossEntropy:
             if best_individual is None or best_cost > sample_costs[0]:
                 best_individual, best_cost = samples[0], sample_costs[0]
 
+            # Select individuals to influence distribution
             selected_individuals = samples[:self.num_update]
 
+            # Update distribution parameters
             for i in range(self.dimension):
                 means[i] = self.learning_rate * means[i] + ((1.0-self.learning_rate) * np.mean(selected_individuals[:, i]))
                 standard_deviations[i] = self.learning_rate * standard_deviations[i] + ((1.0-self.learning_rate) * np.std(selected_individuals[:, i]))
 
+            # Display status of algorithm
             print("Iteration {iteration}\t\tBest cost: {fitness}\t\tBest individual: {individual}".format(
                 iteration=str.zfill(str(iteration), 3),
                 fitness=repr(best_cost),
