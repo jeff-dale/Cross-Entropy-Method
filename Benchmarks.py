@@ -53,3 +53,25 @@ def Cross_in_Tray(x: np.ndarray) -> float:
     :return: value of Cross_in_Tray function
     """
     return -0.0001*np.power(np.abs(np.sin(x[:, 0])*np.sin(x[:, 1])*np.exp(np.abs(100-np.sqrt(np.power(x[:, 0], 2) + np.power(x[:, 1], 2))/np.pi))) + 1, 0.1)
+
+
+def Levi(x: np.ndarray) -> float:
+    """
+    Levi function for benchmarking.
+    Global minimum at f(0, 0) = 0
+    Bounds: (-5, 5)
+
+    :param x: input vector, must be 2D
+    :return: value of Levi function
+    """
+    return np.power(np.sin(3 * np.pi * x[:, 0]), 2) + np.multiply(np.power(x[:, 0] - 1, 2), 1 + np.power(np.sin(3 * np.pi * x[:, 1]), 2)) + np.multiply(np.power(x[:, 1] - 1, 2), 1 + np.power(np.sin(2 * np.pi * x[:, 1]), 2))
+
+
+objective_functions = {
+    "Sphere": {"f": lambda x: np.sum((np.power(x, 2)), axis=1), "bounds": np.asarray([[-5, 5], [-5, 5]])},
+    "Rastrigin": {"f": Rastrigin, "bounds": np.asarray([[-5, 5], [-5, 5]])},
+    "Ackley": {"f": Ackley, "bounds": np.asarray([[-5.12, 5.12], [-5.12, 5.12]])},
+    "Easom": {"f": Easom, "bounds": np.asarray([[-100, 100], [-100, 100]])},
+    "Cross in Tray": {"f": Cross_in_Tray, "bounds": np.asarray([[-10, 10], [-10, 10]])},
+    "Levi": {"f": Levi, "bounds": np.asarray([[-10, 10], [-10, 10]])}
+}

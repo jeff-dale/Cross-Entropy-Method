@@ -1,7 +1,8 @@
+import matplotlib.pyplot as plt
 import numpy as np
 
 from Animate import animate
-from Benchmarks import Ackley, Easom, Rastrigin, Cross_in_Tray
+from Benchmarks import objective_functions
 
 class CrossEntropy:
     """
@@ -12,7 +13,7 @@ class CrossEntropy:
     CURVE_DENSITY = 40
 
 
-    def __init__(self, dimension: int, bounds: np.ndarray, max_iterations: int, num_samples: int, num_update: int, learning_rate: float):
+    def __init__(self, dimension: int, bounds: np.ndarray, max_iterations: int, num_samples: int, num_update: int, learning_rate: float, **kwargs):
         """
         Initialize parameters for Cross Entropy method of optimization.
 
@@ -31,13 +32,20 @@ class CrossEntropy:
         self.num_update = num_update
         self.learning_rate = learning_rate
 
+        # initialize results to empty, will be set after optimization
+        self.bests = []
+        self.averages = []
 
-    def optimize(self, objective_function: callable) -> (np.ndarray, list):
+        # kwargs for compatibility of **params in main function
+        self.kwargs = kwargs
+
+
+    def optimize(self, objective_function: callable, do_print: bool = False) -> (np.ndarray, list):
         """
         Optimizes given objective function.
 
         :param objective_function: function to optimize
-        :param plot: whether to plot
+        :param do_print: toggle output on and off
         :return: best solution, list of individuals by iteration
         """
 
@@ -49,10 +57,15 @@ class CrossEntropy:
 
         # Initialize standard deviations as range of bounds
         standard_deviations = self.bounds[:, 1] - self.bounds[:, 0]
+        standard_deviations = standard_deviations.astype(np.float64)
 
         # Initialize current best to None
         best_individual = None
         best_cost = None
+
+        # Intialize stuff for plotting
+        best_by_iteration = []
+        average_by_iteration = []
 
         samples_by_iteration = []
 
@@ -83,32 +96,94 @@ class CrossEntropy:
                 standard_deviations[i] = self.learning_rate * standard_deviations[i] + ((1.0-self.learning_rate) * np.std(selected_individuals[:, i]))
 
             # Display status of algorithm
-            print("Iteration {iteration}\t\tBest cost: {fitness}\t\tBest individual: {individual}".format(
-                iteration=str.zfill(str(iteration), 3),
-                fitness=repr(best_cost),
-                individual=repr(best_individual)
-            ))
+            if do_print:
+                print("Iteration {iteration}\t\tBest cost: {fitness}\t\tBest individual: {individual}".format(
+                    iteration=str.zfill(str(iteration), 3),
+                    fitness=repr(best_cost),
+                    individual=repr(best_individual)
+                ))
 
             samples_by_iteration.append(samples)
+            best_by_iteration.append(best_cost)
+            average_by_iteration.append(np.mean(sample_costs))
+
+        self.bests.append(best_by_iteration)
+        self.averages.append(average_by_iteration)
 
         return best_individual, samples_by_iteration
 
 
+    def plot_reps(self, title, random_search_avg: list = None, random_search_best: list = None) -> None:
+        """
+        Plot all reps with global best solutions.
+
+        :param title: suptitle of plot
+        :param random_search_avg: average fitness value for random search across generations
+        :param random_search_best: best fitness value for random search by generation
+        :return: void
+        """
+
+        is_random_search = not (random_search_avg is None or random_search_best is None)
+
+        plt.subplots(1, 2, figsize=(16, 8))
+        plt.suptitle(title)
+        plt.subplot(1, 2, 1)
+        plt.title("Average Cost by Iteration")
+        plt.xlabel("Iteration")
+        plt.ylabel("Average Cost")
+
+        num_reps = len(self.averages)
+
+        # plot each rep
+        for rep in range(num_reps):
+            plt.plot(range(len(self.averages[rep])), self.averages[rep], label="Rep %d Average" % (rep + 1))
+
+        if is_random_search:
+            plt.plot(range(len(random_search_avg)), random_search_avg, label="Random Search Average")
+            # plt.plot(range(len(random_search_best)), random_search_best, label="Random Search Best")
+
+        plt.legend(loc="upper left")
+
+        plt.subplot(1, 2, 2)
+        plt.title("Lowest Cost by Iteration")
+        plt.xlabel("Iteration")
+        plt.ylabel("Best Cost")
+
+        # plot each rep
+        for rep in range(num_reps):
+            plt.plot(range(len(self.bests[rep])), self.bests[rep], label="Rep %d Best" % (rep + 1))
+
+        if is_random_search:
+            plt.plot(range(len(random_search_best)), random_search_best, label="Random Search Best")
+
+        plt.legend(loc="upper left")
+        plt.show()
+
+
 if __name__ == "__main__":
 
-    CE = CrossEntropy(
-        dimension = 2,
-        bounds = np.asarray([[-5, 5], [-5, 5]]),
-        max_iterations = 100,
-        num_samples = 50,
-        num_update = 5,
-        learning_rate = 0.7
-    )
+    from RandomSearch import RandomSearch
+    objective_function = "Levi"
 
-    #objective_function = lambda x : np.sum((np.power(x, 2)), axis=1); CE.bounds = np.asarray([[-5, 5], [-5, 5]])
-    #objective_function = Rastrigin; CE.bounds = np.asarray([[-5, 5], [-5, 5]])
-    #objective_function = Ackley; CE.bounds = np.asarray([[-5.12, 5.12], [-5.12, 5.12]])
-    #objective_function = Easom; CE.bounds = np.asarray([[-100, 100], [-100, 100]])
-    objective_function = Cross_in_Tray; CE.bounds = np.asarray([[-10, 10], [-10, 10]])
-    best, samples_by_iteration = CE.optimize(objective_function)
-    animate(objective_function, samples_by_iteration, CE.bounds, CrossEntropy.CURVE_DENSITY)
+    params = {
+        "dimension": 2,
+        "bounds": objective_functions[objective_function]["bounds"],
+        "max_iterations": 100,
+        "num_samples": 50,
+        "num_update": 5,
+        "learning_rate": 0.7,
+        "num_reps": 1
+    }
+
+    CE = CrossEntropy(**params)
+    RS = RandomSearch(**params)
+
+    RS_best, RS_samples_by_iteration, RS_best_by_iteration, RS_average_by_iteration = RS.optimize(objective_functions[objective_function]["f"])
+    CE_bests, CE_averages = [], []
+
+    CE_best, CE_samples_by_iteration = None, None
+    for rep in range(params["num_reps"]):
+        CE_best, CE_samples_by_iteration = CE.optimize(objective_functions[objective_function]["f"], do_print=True)
+
+    animate(objective_functions[objective_function]["f"], CE_samples_by_iteration, params["bounds"], CrossEntropy.CURVE_DENSITY)
+    CE.plot_reps("Cross Entropy on %s Function (α=%.2f)" % (objective_function, params["learning_rate"]), RS_average_by_iteration, RS_best_by_iteration)
