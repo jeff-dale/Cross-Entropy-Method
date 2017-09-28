@@ -163,7 +163,7 @@ class CrossEntropy:
 if __name__ == "__main__":
 
     from RandomSearch import RandomSearch
-    objective_function = "Levi"
+    objective_function = "Sphere"
 
     params = {
         "dimension": 2,
@@ -171,8 +171,8 @@ if __name__ == "__main__":
         "max_iterations": 100,
         "num_samples": 50,
         "num_update": 5,
-        "learning_rate": 0.7,
-        "num_reps": 1
+        "learning_rate": 0.9,
+        "num_reps": 5
     }
 
     CE = CrossEntropy(**params)
@@ -183,7 +183,7 @@ if __name__ == "__main__":
 
     CE_best, CE_samples_by_iteration = None, None
     for rep in range(params["num_reps"]):
-        CE_best, CE_samples_by_iteration = CE.optimize(objective_functions[objective_function]["f"], do_print=True)
+        CE_best, CE_samples_by_iteration = CE.optimize(objective_functions[objective_function]["f"], do_print=False)
 
     animate(objective_functions[objective_function]["f"], CE_samples_by_iteration, params["bounds"], CrossEntropy.CURVE_DENSITY)
     CE.plot_reps("Cross Entropy on %s Function (α=%.2f)" % (objective_function, params["learning_rate"]), RS_average_by_iteration, RS_best_by_iteration)

@@ -21,12 +21,12 @@ def animate(objective_function: callable, samples_by_iteration, bounds: np.ndarr
 
 
     def init():
-        plt.title("Iteration 0")
+        plt.suptitle("Iteration 0")
         return samples,
 
     def iterate(i):
         nonlocal individuals
-        plt.title("Iteration " + str(i))
+        plt.suptitle("Iteration " + str(i))
         individuals.remove()
         individuals = samples.scatter(samples_by_iteration[i][:, 0], samples_by_iteration[i][:, 1], objective_function(samples_by_iteration[i]), c=(0, 0, 0), s=100)
         return samples,
