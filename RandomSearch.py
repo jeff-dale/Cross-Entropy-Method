@@ -63,7 +63,7 @@ class RandomSearch:
             if best_individual is None or best_cost > sample_costs[0]:
                 best_individual, best_cost = samples[0], sample_costs[0]
 
-            # Display status of algorithm
+            # Display the status of algorithm
             if do_print:
                 print("Iteration {iteration}\t\tBest cost: {fitness}\t\tBest individual: {individual}".format(
                     iteration=str.zfill(str(iteration), 3),
