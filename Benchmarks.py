@@ -71,7 +71,7 @@ objective_functions = {
     "Sphere": {"f": lambda x: np.sum((np.power(x, 2)), axis=1), "bounds": np.asarray([[-5, 5], [-5, 5]])},
     "Rastrigin": {"f": Rastrigin, "bounds": np.asarray([[-5, 5], [-5, 5]])},
     "Ackley": {"f": Ackley, "bounds": np.asarray([[-5.12, 5.12], [-5.12, 5.12]])},
-    "Easom": {"f": Easom, "bounds": np.asarray([[-100, 100], [-100, 100]])},
+    "Easom": {"f": Easom, "bounds": np.asarray([[-100.0, 100.0], [-100.0, 100.0]])},
     "Cross in Tray": {"f": Cross_in_Tray, "bounds": np.asarray([[-10, 10], [-10, 10]])},
     "Levi": {"f": Levi, "bounds": np.asarray([[-10, 10], [-10, 10]])}
 }

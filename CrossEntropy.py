@@ -100,7 +100,7 @@ class CrossEntropy:
                 print("Iteration {iteration}\t\tBest cost: {fitness}\t\tBest individual: {individual}".format(
                     iteration=str.zfill(str(iteration), 3),
                     fitness=repr(best_cost),
-                    individual=repr(best_individual)
+                    individual=", ".join(list(map(lambda x : str(x), best_individual)))
                 ))
 
             samples_by_iteration.append(samples)
@@ -163,19 +163,22 @@ class CrossEntropy:
 if __name__ == "__main__":
 
     from RandomSearch import RandomSearch
-    objective_function = "Sphere"
+    objective_function = "Easom"
 
     params = {
         "dimension": 2,
+        #"bounds": np.ones((10000, 1))*np.asarray([[0., 100.]]),
         "bounds": objective_functions[objective_function]["bounds"],
-        "max_iterations": 100,
-        "num_samples": 50,
-        "num_update": 5,
-        "learning_rate": 0.9,
+        "max_iterations": 30,
+        "num_samples": 500,
+        "num_update": 10,
+        "learning_rate": 0.5,
         "num_reps": 5
     }
 
     CE = CrossEntropy(**params)
+    best_individual, _ = CE.optimize(objective_functions[objective_function]["f"], True)
+
     RS = RandomSearch(**params)
 
     RS_best, RS_samples_by_iteration, RS_best_by_iteration, RS_average_by_iteration = RS.optimize(objective_functions[objective_function]["f"])
