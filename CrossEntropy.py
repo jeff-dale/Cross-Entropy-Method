@@ -189,4 +189,4 @@ if __name__ == "__main__":
         CE_best, CE_samples_by_iteration = CE.optimize(objective_functions[objective_function]["f"], do_print=False)
 
     animate(objective_functions[objective_function]["f"], CE_samples_by_iteration, params["bounds"], CrossEntropy.CURVE_DENSITY)
-    CE.plot_reps("Cross Entropy on %s Function (α=%.2f)" % (objective_function, params["learning_rate"]), RS_average_by_iteration, RS_best_by_iteration)
+    CE.plot_reps("Cross Entropy on %s Function (β=%.2f)" % (objective_function, params["learning_rate"]), RS_average_by_iteration, RS_best_by_iteration)
